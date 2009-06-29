@@ -1,0 +1,71 @@
+\documentclass{book}
+\usepackage{sstdef}
+\title{tcpperl}
+\begin{document}
+
+\section{The \cmd{tcpperl} program}
+
+\subsection{Usage}
+\begin{code}%
+  tcpperl \var{opts} \var{file} \var{prog}
+\end{code}
+where \cvar{opts} is a series of \href{tcphandle}{tcphandle.html} server
+options, \cvar{file} names a file containing perl code, and \cvar{prog}
+is one or more arguments specifying a perl subroutine plus arguments to
+run for each accepted connection.
+
+\cmd{tcpperl} forks the requested number of children, each listening for
+TCP client connections.  Before handling any requests, each child parses
+and runs the perl code in \cvar{file}.  The file should end with a true
+expression, like a module.
+
+To handle a request, a child process executes \cvar{prog} as a perl
+subroutine, with file descriptor~0 reading from the network and file
+descriptor~1 writing to the network.  Before handling the request, the
+child sets certain environment variables, a la \cmd{tcpserver}.
+
+Each invocation of \cvar{prog} handles a single request.  It is called
+within a loop, with one iteration per request, and therefore must
+release any resources allocated to handle a particular request.
+
+If \cvar{prog} exits while handling a request, \cmd{tcpperl} will
+start a new child process.
+
+
+\subsection{Configuration}
+Edit the following files in \cmd{src/} as necessary for your
+installation.  Unless you use modules that require \cmd{xs} support or a
+nonstandard version of perl, the defaults should suffice.
+\begin{itemize}
+\item\cmd{tcpperl.c}
+  If your server uses a module like \cmd{DBI.pm} you may need to add the
+  requisite \cmd{xs} code.
+
+\item\cmd{conf-ldperl}
+  Determine options required to load \cmd{tcpperl}.  By default,
+  these are calculated automatically.  Using \cmd{xs} code in
+  \cmd{src/tcpperl.c} may require manual option setting in
+  \cmd{src/conf-ldperl}.
+
+\item\cmd{conf-ccperl}
+  Determine options required to compile \cmd{tcpperl}.  By default,
+  these are caluculated automatically.
+
+\item\cmd{conf-perl}
+  How to invoke perl to calculate options automatically in
+  \cmd{conf-ccperl} and \cmd{conf-ldperl}.
+\end{itemize}
+
+\subsection{Known Problems}
+
+CDB\_File: iterative lookups succeed but random lookups fail.
+Each \cmd{ipchandle} server uses the original
+\href{cdb}{http://cr.yp.to/cdb.html} library for access control.  The 
+\href{CDB\_File-0.92}{http://search.cpan.org/author/MSERGEANT/CDB\string_File-0.92}
+package redefines \cmd{cdb_findnext} without declaring it static.  The
+linker may select the wrong definition.  Solution: add \cmd{static} to
+the declaration of \cmd{cdb_findnext} in CDB\_File.xs.
+
+
+\end{document}
+

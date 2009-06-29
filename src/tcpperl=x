@@ -1,0 +1,4 @@
+tcphandle.o
+unix.a
+socket.lib
+perlembed.lib

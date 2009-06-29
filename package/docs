@@ -1,0 +1,55 @@
+#!/bin/sh
+shout() { echo "package/docs: $@" >&2; }
+barf() { shout "fatal: $@"; exit 111; }
+safe() { "$@" || barf "cannot $@"; }
+usage() {
+  shout "usage: package/docs [ --help -v N -f ] [ target ... ]"
+  exit 100
+}
+####
+umask 022
+[ -d package ] || barf "no package directory"
+[ -d src     ] || barf "no src directory"
+here=`env - PATH=$PATH pwd`
+#
+[ "$1" = "--help" ] && usage
+#
+verbose="1"
+force=""
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -v)
+      shift
+      verbose="$1"
+      shift
+      ;;
+    -f)
+      shift
+      force="-f"
+      ;;
+    -*)
+      usage
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+#
+if [ $# -gt 0 ]
+then
+  safe package/build-run -v "$verbose" $force compile-doc doc build "$@"
+  safe package/build-command html compile-doc `awk '
+    BEGIN {
+      for (i = 1;i < ARGC; ++i)
+	file[ARGV[i]] = 1
+      ARGC = 1
+    }
+    { if (file[$1]) print $1 }
+  ' "$@" < package/html`
+else
+  safe package/build-run -v "$verbose" $force compile-doc doc build it
+  safe package/build-command html compile-doc `cat package/html`
+fi
+exit 0

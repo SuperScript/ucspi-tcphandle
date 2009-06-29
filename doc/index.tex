@@ -1,0 +1,22 @@
+\documentclass{book}
+\usepackage{sstdef}
+\title{ucspi-tcphandle}
+\begin{document}
+
+\section{Introduction}
+
+\paragraph{\href{How to install ucspi-tcphandle}{install.html}}
+\paragraph{\href{Creating a server using \cmd{tcphandle.c}}{tcphandle.html}}
+\paragraph{\href{The \cmd{tpcperl} program}{tcpperl.html}}
+
+
+\subsection{What is ucspi-tcphandle?}
+The ucspi-tcphandle package provides a framework for compiling preforked
+\href{tcpserver}{http://cr.yp.to/ucspi-tcp/tcpserver.html}-like servers.
+Each child process executes a loop that services one request per
+iteration.
+
+The \cmd{tpcperl} server executes a perl subroutine for each request.
+
+\end{document}
+

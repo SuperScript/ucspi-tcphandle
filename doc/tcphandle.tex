@@ -1,0 +1,63 @@
+\documentclass{book}
+\usepackage{sstdef}
+
+\title{ucspi-tpchandle}
+\begin{document}
+
+\section{Compiling a \cmd{tcphandle.c} server}
+
+The \cmd{tcphandle.c} program provides a framework for compiling
+preforking
+\href{\cmd{tcpserver}}{http://cr.yp.to/ucspi-tcp/tcpserver.html}-like
+servers.
+
+Each tcphandle server accepts all \cmd{tcpserver} options, and in
+addition:
+\begin{itemize}
+  \item \cmd{-f \var{lockfile}}:
+    Lock \cvar{lockfile} around calls to \cmd{accept}.
+\end{itemize}
+Utilize this option if your \cmd{accept} system call suffers from the
+thundering herd problem.
+
+The concurrency option (\cmd{-c}) sets the number of children that a
+tcphandle server forks upon startup.  The default setting is~40.  Each
+child process listens for requests on the socket inherited from the
+parent process.
+
+If any of its child processes exits, a tcphandle server forks a new
+child process to replace the original.  When it receives SIGTERM, a
+tcphandle server sends SIGTERM to each of its children, waits for them
+to exit, and then itself exits.
+
+Before handling an accepted request, a tcphandle server sets certain
+environment variables, a la \cmd{tcpserver}.
+
+\subsection{Server code}
+A tcphandle server invokes a \cmd{server} subroutine for each request.
+The subroutine reads from the network on file descriptor~0 and writes to
+the network on file descriptor~1:
+\begin{code}%
+  void server(int argc,char * const *argv)
+\end{code}
+The arguments to \cmd{server} are the command line arguments to the
+tcphandle server that remain after option parsing.
+
+The \cmd{server} subroutine is called within a loop, with one iteration
+per request.  It must release any resources allocated to handle a
+particular request before returning to its caller.  This includes
+changes to the environment.
+
+\subsection{Compiling a new tcphandle server}
+Create a file \cmd{src/myserver.c} that implements the \cmd{server}
+subroutine.  Create a control file \cmd{src/myserver=x} listing all
+necessary dependencies.  Then
+\begin{code}%
+  build myserver
+\end{code}
+
+The ucspi-tcphandle package includes two example servers:
+\cmd{tcpprint}, and \href{\cmd{tcpperl}}{tcpperl.html}.
+
+\end{document}
+

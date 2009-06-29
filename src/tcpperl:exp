@@ -1,0 +1,48 @@
+--- tcpperl works
+perlembedHello, World! (1): here you are
+TCPLOCALHOST => Local
+TCPLOCALIP => 127.0.0.1
+TCPLOCALPORT => 50016
+TCPNEW => set within tpcperl
+TCPREMOTEHOST => localhost
+TCPREMOTEIP => 127.0.0.1
+TCPREMOTEPORT => 50017
+0
+perlembedHello, World! (2): here you are
+TCPLOCALHOST => Local
+TCPLOCALIP => 127.0.0.1
+TCPLOCALPORT => 50016
+TCPNEW => set within tpcperl
+TCPREMOTEHOST => localhost
+TCPREMOTEIP => 127.0.0.1
+TCPREMOTEPORT => 50017
+0
+perlembedHello, World! (1): here you are
+TCPLOCALHOST => Local
+TCPLOCALIP => 127.0.0.1
+TCPLOCALPORT => 50016
+TCPNEW => set within tpcperl
+TCPREMOTEHOST => localhost
+TCPREMOTEIP => 127.0.0.1
+TCPREMOTEPORT => 50017
+0
+--- tcpperl -1v prints proper messages
+50016
+tcpperl: status: 0/1
+tcpperl: status: 1/1
+tcpperl: pid x from 127.0.0.1
+tcpperl: ok x Local:127.0.0.1:50016 localhost:127.0.0.1::x
+log: Hello, World! (1): here you are
+tcpperl: done x
+tcpperl: pid x from 127.0.0.1
+tcpperl: ok x Local:127.0.0.1:50016 localhost:127.0.0.1::x
+log: Hello, World! (2): here you are
+tcpperl: end x status 256
+tcpperl: status: 0/1
+tcpperl: status: 1/1
+tcpperl: pid x from 127.0.0.1
+tcpperl: ok x Local:127.0.0.1:50016 localhost:127.0.0.1::x
+log: Hello, World! (1): here you are
+tcpperl: done x
+tcpperl: end x status 15
+tcpperl: status: 0/1

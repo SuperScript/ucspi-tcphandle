@@ -1,0 +1,56 @@
+#!/bin/sh
+shout() { echo "tcpperl:test: $@" >&2; }
+barf() { shout "fatal: $@"; exit 111; }
+safe() { "$@" || barf "cannot $@"; }
+
+# Assume:
+#   available TCP ports on 127.0.0.1: 50016--50021
+#   tcpclient
+#
+# Not tested:
+#   setting UID or GID
+
+umask 022
+safe rm -rf rts-tmp
+safe mkdir rts-tmp
+
+echo 'package Embedded::test;
+my $n = 0;
+$| = 1;
+sub server () {
+  ++$n;
+
+  $ENV{TCPNEW} = "set within tpcperl";
+  print STDERR "log: Hello, World! ($n): @_\n";
+  print "Hello, World! ($n): @_\n";
+  print map("$_ => $ENV{$_}\n" => sort grep(/^TCP/ => keys %ENV));
+
+  $n > 1  and  exit(1);
+}
+1;
+' > rts-tmp/hello.pm
+
+tcpperl \
+-c1 -Bperlembed -vo -D -1 -Xx rules.cdb -Rt5 -hp -l Local -b 2 \
+127.0.0.1 50016 rts-tmp/hello.pm 'Embedded::test::server' here you are \
+>rts-tmp/log.2 2>&1 &
+run2=$!
+sleep 2
+
+echo '--- tcpperl works'
+{ tcpclient -p 50017 -R -H -T 10 -l Local 0 50016 sh -c 'cat <&6'
+  echo $?
+  sleep 1
+  tcpclient -p 50017 -R -H -T 10 -l Local 0 50016 sh -c 'cat <&6'
+  echo $?
+  sleep 1
+  tcpclient -p 50017 -R -H -T 10 -l Local 0 50016 sh -c 'cat <&6'
+  echo $?
+} | sed -e 's/^PATH => .*/PATH => .../' -e 's/ID => .*/ID => x/'
+
+kill -TERM $run2
+wait $run2
+
+echo '--- tcpperl -1v prints proper messages'
+cat -v rts-tmp/log.2 | sed -e 's/::.*/::x/' -e 's/ [0-9]* / x /' -e 's/done [0-9]*$/done x/'
+

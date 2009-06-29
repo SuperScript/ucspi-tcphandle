@@ -1,0 +1,80 @@
+\documentclass{book}
+\usepackage{sstdef}
+\title{ucspi-tcphandle}
+\begin{document}
+
+\section{How to install \package}
+
+\package{} comes with NO WARRANTY.
+
+\subsection{System requirements}
+\package{} works only under UNIX.
+
+\subsection{Installation}
+If necessary, create a \cmd{/package} directory:
+\begin{code}%
+  mkdir /package
+  chmod 1755 /package
+  cd /package
+\end{code}
+
+Download the \package{} package.  The most recent \package
+package is
+\href{\package~\version}{\package-\version.tar.gz}.
+Unpack \package{} in \cmd{/package}:
+\begin{code}%
+  gunzip \package-\version.tar
+  tar -xpf \package-\version.tar
+  rm \package-\version.tar
+  cd \path/\package-\version
+\end{code}
+
+Edit configuration files for \href{\cmd{tcpperl}}{tcpperl.html}
+if necessary.
+
+Compile the package:
+\begin{code}%
+  package/compile
+\end{code}
+
+Run some tests:
+\begin{code}%
+  package/rts
+\end{code}
+The output should be empty.  The tests require
+\href{ucspi-tcp}{http://cr.yp.to/ucspi-tcp.html}, and use TCP ports
+50016--50021 at IP address~127.0.0.1.
+
+Install the package:
+\begin{code}%
+  package/install
+\end{code}
+
+Commands are installed in the
+\cmd{/package/host/superscript.com/command} directory.
+
+Report successful installation:
+\begin{code}%
+  package/report
+\end{code}
+
+\subsection{Package subsets}
+To restrict the compile or install to a subset of the entire package,
+supply the name of a subset on the command line:
+\begin{code}%
+  package/compile \var{subset}
+  package/rts \var{subset}
+  package/install \var{subset}
+\end{code}
+
+To exclude a subset from an operation, add a hyphen as the first
+command-line argument:
+\begin{code}%
+  package/compile - \var{subset}
+  package/rts - \var{subset}
+  package/install - \var{subset}
+\end{code}
+
+Valid subsets in this package are \cmd{base} and \cmd{tcpperl}.
+\end{document}
+

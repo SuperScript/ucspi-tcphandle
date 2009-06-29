@@ -1,0 +1,27 @@
+20030302
+	tcphandle.c: detect changed environment.
+	tcpperl.c: rectify environment handling.
+	error.h: #include <errno.h> to appease linux.
+	version: 0.61
+
+20030430
+	tcpperl.c: improved  environment handling.
+	tcphandle.c: clear flagdeny for each connection.
+	version: 0.62
+
+20050502
+	Don't fail if already process group leader.
+	Add macros for compatibility with older Perl.
+	Don't leak pointer from eval_pv.
+
+20050505
+	Don't require daemontools for tests.
+	Support partial compile and test.
+	version: 0.65
+
+20050515
+	Partial-install bug fix in package/upgrade.
+	version: 0.66
+
+20050610
+	Close socket for deny rule (Fred Lindberg).

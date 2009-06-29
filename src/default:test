@@ -1,0 +1,56 @@
+#!/bin/sh
+shout() { echo "default:test: $@" >&2; }
+barf() { shout "fatal: $@"; exit 111; }
+safe() { "$@" || barf "cannot $@"; }
+
+
+# Assume:
+#   available TCP ports on 127.0.0.1: 50016--50021
+#   tcpclient
+#
+# Not tested:
+#   setting UID or GID
+
+umask 022
+safe rm -rf rts-tmp
+safe mkdir rts-tmp
+
+tcpprint \
+-c 1 -Bbanner -vo -D -1 -Xx rules.cdb -Rt5 -hp -l Local -b 2 \
+127.0.0.1 50016 \
+>rts-tmp/log.1 2>&1 &
+run1=$!
+
+sleep 2
+
+echo '--- tcpprint prints usage message without enough arguments'
+tcpprint 0; echo $?
+
+echo '--- tcpprint prints error message with unknown port name'
+tcpprint 0 nonexistentport; echo $?
+
+echo '--- tcpprint prints error message with unknown host name'
+tcpprint nonexistent.local. 50016; echo $?
+
+echo '--- tcpprint prints error message with unresolvable host name'
+tcpprint thislabelistoolongbecausednshasalimitof63charactersinasinglelabel. 50016; echo $?
+
+echo '--- tcpprint prints error message with non-local host name'
+( tcpprint 1.2.3.4 016 2>&1
+  echo $?
+) | sed -e 's/unable to bind: .*/unable to bind: .../'
+
+echo '--- tcpprint sets basic environment variables' 
+tcpclient -p 50017 -R -H -T 10 -l Local 0 50016 sh -c 'cat <&6'
+echo $?
+
+echo '--- tcpprint exits when environment changes'
+tcpclient -p 50018 -R -H -T 10 -l Local 0 50016 sh -c 'cat <&6'
+echo $?
+
+kill -TERM $run1
+wait $run1
+
+echo '--- tcpprint -1v prints proper messages'
+cat -v rts-tmp/log.1 | sed -e 's/::.*/::x/' -e 's/ [0-9]* / x /' -e 's/done [0-9]*$/done x/'
+
